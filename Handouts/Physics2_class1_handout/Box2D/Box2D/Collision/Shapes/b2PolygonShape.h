@@ -82,6 +82,7 @@ public:
 	b2Vec2 m_vertices[b2_maxPolygonVertices];
 	b2Vec2 m_normals[b2_maxPolygonVertices];
 	int32 m_count;
+	float32 m_width;
 };
 
 inline b2PolygonShape::b2PolygonShape()
@@ -90,6 +91,7 @@ inline b2PolygonShape::b2PolygonShape()
 	m_radius = b2_polygonRadius;
 	m_count = 0;
 	m_centroid.SetZero();
+	m_width = 0;
 }
 
 inline const b2Vec2& b2PolygonShape::GetVertex(int32 index) const

@@ -6,9 +6,9 @@
 
 // TODO 1: Include Box 2 header and library
 #ifdef _DEBUG
-#pragma comment( lib, "Box2D/libx86/Debug/Box2D.lib" )
+#pragma comment( lib, "Box2D/libx86/b2_Debug/Box2D.lib" )
 #else
-#pragma comment( lib, "Box2D/libx86/Release/Box2D.lib" )
+#pragma comment( lib, "Box2D/libx86/2_Release/Box2D.lib" )
 #endif // _DEBUG
 
 
@@ -35,6 +35,7 @@ bool ModulePhysics::Start()
 	world = new b2World(gravity);
 	// TODO 4: Create a a big static circle as "ground"
 	CreateCircle(PIXELS_TO_METERS(SCREEN_WIDTH /2.f), PIXELS_TO_METERS(SCREEN_HEIGHT /2.f),2.f,0);
+	CreateBox(PIXELS_TO_METERS(SCREEN_WIDTH / 2.f), PIXELS_TO_METERS(SCREEN_HEIGHT / 2.f), 2.f, 2.f, 0);
 	return true;
 }
 
@@ -53,15 +54,39 @@ void ModulePhysics::CreateCircle(float posX, float posY, float radius,int isDyna
 		type = b2BodyType::b2_dynamicBody;
 		break;
 	}
+	b2BodyDef circleBody_def;
+	circleBody_def.position.Set(posX, posY);
+	circleBody_def.type = type;
+	b2Body *groundBody = world->CreateBody(&circleBody_def);
+	
+	b2CircleShape shape;
+	shape.m_radius = radius;
+
+	groundBody->CreateFixture(&shape, 0.0f);
+
+}void ModulePhysics::CreateBox(float posX, float posY, float32 width,float32 height,int isDynamic)
+{	
+	b2BodyType type;
+	
+	switch (isDynamic)
+	{
+	case 0:
+		type = b2BodyType::b2_staticBody;
+		break;
+	case 1:
+		type = b2BodyType::b2_dynamicBody;
+		break;
+	}
 	b2BodyDef groundBody_def;
 	groundBody_def.position.Set(posX, posY);
 	groundBody_def.type = type;
 	b2Body *groundBody = world->CreateBody(&groundBody_def);
 
-	b2CircleShape shape;
-	shape.m_radius = radius;
+	b2PolygonShape groundBox;
+	groundBox.m_width = 4.f;
+	groundBox.SetAsBox(width, height);
 
-	groundBody->CreateFixture(&shape, 0.f);
+	groundBody->CreateFixture(&groundBox, 0.0f);
 }
 
 // 
@@ -105,6 +130,23 @@ update_status ModulePhysics::PostUpdate()
 					App->renderer->DrawCircle(METERS_TO_PIXELS(pos.x), METERS_TO_PIXELS(pos.y), METERS_TO_PIXELS(shape->m_radius), 255, 255, 255);
 				}
 				break;
+				case b2Shape::e_polygon:
+				{
+
+					b2PolygonShape* shape = (b2PolygonShape*)f->GetShape();
+					b2Vec2 pos = f->GetBody()->GetPosition();
+
+					SDL_Rect rect;
+					int posX = METERS_TO_PIXELS(pos.x);
+					int posY = METERS_TO_PIXELS(pos.y);
+					LOG("%f", shape->m_width);
+					rect.x = posX;
+					rect.y = posY;
+					rect.w = 500;
+					rect.h = 100;
+					App->renderer->DrawQuad(rect, 205, 255, 255, 255, false, false);
+					break;
+				}
 
 				// You will have to add more cases to draw boxes, edges, and polygons ...
 			}
