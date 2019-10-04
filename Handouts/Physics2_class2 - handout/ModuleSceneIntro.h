@@ -4,7 +4,8 @@
 #include "Globals.h"
 
 class PhysBody;
-
+class b2Vec2;
+class b2Body;
 class ModuleSceneIntro : public Module
 {
 public:
@@ -20,4 +21,7 @@ public:
 	SDL_Texture* circle;
 	SDL_Texture* box;
 	SDL_Texture* rick;
+	SDL_Rect circle_rect;
+	SDL_Rect rectangle_rect;
+	SDL_Rect ricky_rect;
 };

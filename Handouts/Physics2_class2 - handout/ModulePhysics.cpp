@@ -62,52 +62,7 @@ update_status ModulePhysics::PreUpdate()
 // 
 update_status ModulePhysics::PostUpdate()
 {
-	// On space bar press, create a circle on mouse position
-	if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
-	{
-		b2BodyDef body;
-		body.type = b2_dynamicBody;
-		float radius = PIXEL_TO_METERS(25);
-		body.position.Set(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()));
 
-		b2Body* b = world->CreateBody(&body);
-
-		b2CircleShape shape;
-		shape.m_radius = radius;
-		b2FixtureDef fixture;
-		fixture.shape = &shape;
-
-		b->CreateFixture(&fixture);
-	}
-
-	if(App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
-	{
-		// TODO 1: When pressing 2, create a box on the mouse position
-
-		// TODO 2: To have the box behave normally, set fixture's density to 1.0f
-	}
-
-	if(App->input->GetKey(SDL_SCANCODE_3) == KEY_DOWN)
-	{
-		// TODO 3: Create a chain shape using those vertices
-		// remember to convert them from pixels to meters!
-		/*
-		int points[24] = {
-			-38, 80,
-			-44, -54,
-			-16, -60,
-			-16, -17,
-			19, -19,
-			19, -79,
-			61, -77,
-			57, 73,
-			17, 78,
-			20, 16,
-			-25, 13,
-			-9, 72
-		};
-		*/
-	}
 
 	if(App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		debug = !debug;
@@ -200,4 +155,141 @@ bool ModulePhysics::CleanUp()
 	delete world;
 
 	return true;
+}
+
+void ModulePhysics::CreateCircle(int x, int y, int radius)
+{
+	b2BodyDef body;
+	
+	body.type = b2_dynamicBody;
+	
+	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	b2Body* b = world->CreateBody(&body);
+
+	b2CircleShape shape;
+	shape.m_radius = PIXEL_TO_METERS(radius);
+	b2FixtureDef fixture;
+	fixture.shape = &shape;
+	fixture.density = 1.0f;
+	b->CreateFixture(&fixture);
+	if (posBodyDataArray < MAX_BODIES) {
+		
+		bodyData[posBodyDataArray].type = shape.GetType();
+		bodyData[posBodyDataArray].m_radius = radius;
+		bodyData[posBodyDataArray++].body = b;
+	}
+	else {
+		LOG("Can't add more bodies");
+	}
+}
+
+void ModulePhysics::CreateRectangle(int x, int y, int width, int height)
+{
+	b2BodyDef body;
+	body.type = b2_dynamicBody;
+	body.position.Set(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()));
+
+	b2Body* b = world->CreateBody(&body);
+
+	b2PolygonShape shape;
+	
+	shape.SetAsBox(PIXEL_TO_METERS(width), PIXEL_TO_METERS(height));
+	b2FixtureDef fixture;
+	fixture.density = 1.0f;
+	fixture.shape = &shape;
+
+	b->CreateFixture(&fixture);
+	if (posBodyDataArray < MAX_BODIES) {
+		bodyData[posBodyDataArray].type = shape.GetType();
+		bodyData[posBodyDataArray++].body = b;
+	}
+	else {
+		LOG("Can't add more bodies");
+	}
+}
+
+void ModulePhysics::CreateChain(int x, int y)
+{
+	int points[68] = {
+	43, 39,
+	14, 36,
+	29, 63,
+	0, 76,
+	28, 90,
+	8, 103,
+	30, 115,
+	23, 125,
+	40, 127,
+	35, 137,
+	47, 133,
+	55, 144,
+	67, 148,
+	80, 149,
+	88, 145,
+	95, 137,
+	99, 126,
+	105, 127,
+	106, 122,
+	100, 116,
+	103, 105,
+	111, 99,
+	106, 93,
+	110, 89,
+	109, 81,
+	108, 75,
+	117, 67,
+	104, 62,
+	104, 57,
+	112, 35,
+	95, 40,
+	89, 4,
+	75, 32,
+	41, -1
+	};
+	b2Vec2 pointsArray[34];
+	for (int i = 0; i < 34; i++)
+	{
+		pointsArray[i].Set(PIXEL_TO_METERS(points[i * 2]), PIXEL_TO_METERS(points[i * 2 + 1]));
+
+	}
+	b2BodyDef body;
+	body.type = b2_dynamicBody;
+	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	b2Body* b = world->CreateBody(&body);
+
+	b2ChainShape shape;
+	
+	shape.CreateLoop(pointsArray, 34);
+	b2FixtureDef fixture;
+	fixture.density = 1.0f;
+	fixture.shape = &shape;
+
+	b->CreateFixture(&fixture);
+	if (posBodyDataArray < MAX_BODIES) {
+		bodyData[posBodyDataArray].type = shape.GetType();
+		bodyData[posBodyDataArray++].body = b;
+	}
+	else {
+		LOG("Can't add more bodies");
+	}
+}
+
+
+
+float BodyData::GetPosX()
+{
+	return body->GetPosition().x;
+}
+
+float BodyData::GetPosY()
+{
+	return body->GetPosition().y;
+	
+}
+
+float BodyData::GetRotation()
+{
+	return body->GetAngle();
 }
