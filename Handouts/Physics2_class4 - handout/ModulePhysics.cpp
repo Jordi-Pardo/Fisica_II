@@ -54,6 +54,36 @@ bool ModulePhysics::Start()
 	fixture.shape = &shape;
 	big_ball->CreateFixture(&fixture);
 
+
+	// big static circle as "ground" in the middle of the screen
+	int posx = SCREEN_WIDTH / 4;
+	int posy = SCREEN_HEIGHT / 4.0f;
+	int dim = SCREEN_WIDTH / 8;
+
+	b2BodyDef b;
+	b.type = b2_staticBody;
+	b.position.Set(PIXEL_TO_METERS(posx), PIXEL_TO_METERS(posy));
+
+	b2Body* circle = world->CreateBody(&b);
+
+	b2CircleShape shape1;
+	shape1.m_radius = PIXEL_TO_METERS(dim) * 0.5f;
+
+	b2FixtureDef fix;
+	fix.shape = &shape1;
+	circle->CreateFixture(&fix);
+
+	PhysBody* box = CreateRectangle(posx,posy, 250, 50);
+
+	b2RevoluteJointDef jointDef;
+	jointDef.Initialize(circle, box->body, circle->GetWorldCenter());
+	jointDef.lowerAngle = -0.5f * b2_pi; // -90 degrees
+	jointDef.upperAngle = 0.25f * b2_pi; // 45 degrees
+	jointDef.enableLimit = true;
+	jointDef.maxMotorTorque = 10.0f;
+	jointDef.motorSpeed = 0.0f;
+	jointDef.enableMotor = true;
+	rev_joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
 	return true;
 }
 
