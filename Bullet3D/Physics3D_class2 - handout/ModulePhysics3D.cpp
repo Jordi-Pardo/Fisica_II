@@ -2,9 +2,26 @@
 #include "Application.h"
 #include "ModulePhysics3D.h"
 #include "Primitive.h"
+#include "Bullet/include/btBulletDynamicsCommon.h"
+
+#define GRAVITY 5.f
 
 // TODO 1: ...and the 3 libraries based on how we compile (Debug or Release)
 // use the _DEBUG preprocessor define
+#if _DEBUG
+#pragma comment( lib, "Bullet/libx86/BulletCollision_debug.lib" )
+#pragma comment( lib, "Bullet/libx86/BulletDynamics_debug.lib" )
+#pragma comment( lib, "Bullet/libx86/LinearMath_debug.lib" )
+
+
+
+#else 
+	#pragma comment( lib, "Bullet/libx86/BulletCollision.lib" )
+	#pragma comment( lib, "Bullet/libx86/BulletDynamics.lib" )
+	#pragma comment( lib, "Bullet/libx86/LinearMath.lib" )
+#endif // _DEBUG
+
+
 
 ModulePhysics3D::ModulePhysics3D(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -13,9 +30,17 @@ ModulePhysics3D::ModulePhysics3D(Application* app, bool start_enabled) : Module(
 
 	// TODO 2: Create collision configuration, dispacher
 	// broad _phase and solver
+	btCollisionDispatcher* dispatcher;
+	dispatcher.
+	btDbvtBroadphase* pairCache;
+	btSequentialImpulseConstraintSolver* constraintSolver;
+	btDefaultCollisionConfiguration* collisionConfiguration;
+
+	world = new btDiscreteDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration);
 
 	//TODO 4: Uncomment the creation of the DebugDrawer
-	//debug_draw = new DebugDrawer();
+	debug_draw = new DebugDrawer();
+	
 }
 
 // Destructor
@@ -34,9 +59,10 @@ bool ModulePhysics3D::Start()
 
 	// TODO 3: Create the world and set default gravity
 	// Have gravity defined in a macro!
+	
 
 	//TODO 4: Uncomment and link the debug Drawer with our newly created Physics world
-	// world->setDebugDrawer(debug_draw);
+	world->setDebugDrawer(debug_draw);
 
 	{
 		// TODO 6: Create a big rectangle as ground
@@ -92,7 +118,7 @@ bool ModulePhysics3D::CleanUp()
 
 // =============================================
 //TODO 4: Uncomment the definition of the Debug Drawer
-/*
+
 void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
 	line.origin.Set(from.getX(), from.getY(), from.getZ());
@@ -127,4 +153,3 @@ int	 DebugDrawer::getDebugMode() const
 {
 	return mode;
 }
-*/

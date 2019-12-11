@@ -25,10 +25,12 @@ private:
 	bool debug;
 
 	DebugDrawer* debug_draw;
+
+	btDiscreteDynamicsWorld* world = nullptr;
 };
 
 //TODO 4: Uncomment the declaration of the Debug Drawer
-/*
+
 class DebugDrawer : public btIDebugDraw
 {
 public:
@@ -46,4 +48,3 @@ public:
 	Line line;
 	Primitive point;
 };
-*/
